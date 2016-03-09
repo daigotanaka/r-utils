@@ -16,6 +16,7 @@ cachedRedshiftQuery <-
         queryName,
         query,
         expire=-1,
+        redshiftDriverFullPath=NULL,
         redshiftDriverPath=NULL,
         redshiftDriverUrl="http://s3.amazonaws.com/redshift-downloads/drivers/RedshiftJDBC41-1.1.9.1009.jar",
         cachePath="./redshift_cache") {
@@ -26,9 +27,10 @@ cachedRedshiftQuery <-
     } else if (!dir.exists(redshiftDriverPath)) {
         dir.create(redshiftDriverPath)
     }
-    redshiftDriverFile = regmatches(redshiftDriverUrl, regexpr("[a-zA-Z0-9.-]*jar", redshiftDriverUrl))
-    redshiftDriverFullPath = paste(redshiftDriverPath, redshiftDriverFile, sep="/")
-
+    if (is.null(redshiftDriverFullPath)) {
+        redshiftDriverFile = regmatches(redshiftDriverUrl, regexpr("[a-zA-Z0-9.-]*jar", redshiftDriverUrl))
+        redshiftDriverFullPath = paste(redshiftDriverPath, redshiftDriverFile, sep="/")
+    }
     message(paste("Driver file: ", redshiftDriverFullPath, sep=""))
 
     if (!file.exists(redshiftDriverFullPath)) {
