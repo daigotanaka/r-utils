@@ -118,6 +118,13 @@ cachedMixpanelExport <- function(queryName,
     require(httr)
     require(stringr)
 
+    flatten <- function(x) {
+        repeat {
+            if(!any(vapply(x, is.list, logical(1)))) return(x)
+            x <- Reduce(c, x)
+        }
+    }
+
     if (!dir.exists(cachePath)) {
         dir.create(cachePath)
     }
@@ -171,15 +178,34 @@ cachedMixpanelExport <- function(queryName,
     jsonl = content(GET(url), as="text", timeout(httpTimeoutSec))  # JSONL format
     jsons = str_split(jsonl, "\n")[[1]]
 
-    dfList = list()
+    allEvents = list()
     for (i in 1:(length(jsons) - 1)) {
         json = jsons[i]
         # Last line may be empty. So tryCatch
         tryCatch({
-            df <- fromJSON(json)
-            dfList[[i]] <- df
+            parsed <- fromJSON(json)
+            event = parsed$event
+            props = parsed$properties
+            data = as.data.frame(flatten(props), stringsAsFactors=FALSE)
+            colnames(data) = names(unlist(props))
+            if (is.null(allEvents[[event]])) {
+                allEvents[[event]] = data
+            } else {
+                colNamesOld = names(allEvents[[events]])
+                colNamesNew = names(data)
+                missingFromNew = which(!(colNamesOld %in% colNamesNew))
+                missingFromOld = which(!(colNamesNew %in% colNamesOld))
+
+                if (length(missingFromNew) > 0) {
+                    data[, colNamesOld[missingFromNew]] = NA
+                }
+                if (length(missingFromOld) > 0) {
+                    allEvents[[event]][, colNamesNew[missingFromOld]] = NA
+                }
+                allEvents[[event]] = rbind(allEvents[[event]], data)
+            }
         })
     }
-    saveRDS(dfList, mpFileName)
-    return(dfList)
+    saveRDS(allEvents, mpFileName)
+    return(allEvents)
 }
