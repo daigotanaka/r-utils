@@ -188,10 +188,10 @@ cachedMixpanelExport <- function(queryName,
             props = parsed$properties
             data = as.data.frame(flatten(props), stringsAsFactors=FALSE)
             colnames(data) = names(unlist(props))
-            if (is.null(allEvents[[event]])) {
+            if (!(event %in% names(allEvents))) {
                 allEvents[[event]] = data
             } else {
-                colNamesOld = names(allEvents[[events]])
+                colNamesOld = names(allEvents[[event]])
                 colNamesNew = names(data)
                 missingFromNew = which(!(colNamesOld %in% colNamesNew))
                 missingFromOld = which(!(colNamesNew %in% colNamesOld))
