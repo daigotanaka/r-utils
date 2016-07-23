@@ -80,7 +80,7 @@ getStackedHistogram = function(data, names, xLabel, interval=100) {
     return(chart)
 }
 
-getTimelapseLinePlot = function(data, names[i], yLabel, timezone="UTC") {
+getTimelapseLinePlot = function(data, names, yLabel, timezone="UTC") {
     series = list()
     for (i = 1:length(data)){
         timelapseValues = getTimelapseValues(
