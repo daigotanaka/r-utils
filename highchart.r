@@ -82,7 +82,7 @@ getStackedHistogram = function(data, names, xLabel, interval=100) {
 
 getTimelapseLinePlot = function(data, names, yLabel, timezone="UTC") {
     series = list()
-    for (i = 1:length(data)){
+    for (i in 1:length(data)){
         timelapseValues = getTimelapseValues(
             as.POSIXlt(strptime(as.character(data[[i]]$date), "%Y-%m-%d", tz=timezone)),
             data[[i]]$x)
