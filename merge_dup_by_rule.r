@@ -75,12 +75,11 @@ mergeDupByRule = function(dataFrame, by="id", earlierEntry=c(), greater=c(), les
     cleanDF= dataFrame[0,]
     for (i in 1:nrow(dataFrame)) {
         current = dataFrame[i,]
-        currentId = current[by]
-        prev = cleanDF[cleanDF[,by]==current[,by],]
-        if (nrow(prev) == 0) {
+        if (nrow(cleanDF) == 0 || nrow(cleanDF[cleanDF[,by] == as.matrix(current[,by])[1,1],]) == 0) {
             cleanDF = rbind(cleanDF, current)
             next()
         }
+        prev = cleanDF[cleanDF[,by] == as.matrix(current[,by])[1,1],]
         for (j in 1:length(colNames)) {
             colName = colNames[j]
             prevVal = prev[, colName]
@@ -183,4 +182,4 @@ mergeDupByRule.tests = function () {
     }
     testMergeDupByRule()
     testMergeDupByRule2()
-} 
+}
