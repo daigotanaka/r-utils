@@ -55,7 +55,7 @@ getBinItemList = function(data, businesses, interval=100) {
 
 # getStackedHistogram
 # data[[]]$x
-getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE, logBase=exp(1)) {
+getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE, logBase=exp(1), normalize=FALSE) {
     series = list()
     for (i in 1:length(data)){
         x = data[[i]]$x
@@ -71,9 +71,13 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
         histNames = getBinItemList(data[[i]], interval=actualInterval)
 
         nBins = min(length(histogram$breaks), length(histogram$counts))
+        counts = histogram$counts[1:nBins]
+        if (normalize) {
+            counts = counts / nrow(data[[i]])
+        }
         bins = getValues(
             histogram$breaks[1:nBins],
-            histogram$counts[1:nBins],
+            counts,
             name=histNames)
         series[[i]] = list(name=names[i], data=bins)
     }
