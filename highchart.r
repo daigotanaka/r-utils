@@ -87,7 +87,11 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
     chart$plotOptions(
         column="{ grouping: false, pointPadding: 0, borderWidth: 0, groupPadding: 0, shadow: false}")
     chart$xAxis(title=paste("{text: '", xLabel, "'}", sep=""))
-    chart$yAxis(title="{text: 'frequency'}")
+    yLabel = "frequency"
+    if (normalize) {
+        yLabel = paste(yLabel, "(normalized)")
+    }
+    chart$yAxis(title=paste("{text: '", yLabel, "'}", sep=""))
     chart$set(series=series)
     return(chart)
 }
