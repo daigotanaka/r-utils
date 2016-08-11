@@ -13,7 +13,9 @@ getQ2TimelapsePlot = function(data, names, colors, yLabel, verticalLineDate=NULL
         stats = setNames(as.data.frame(boxplot$stats), nm=NULL)
 
         # Timpstamp in miliseconds
-        unixTimestamps = 1000 * as.numeric(as.POSIXct( sort(unique(data[[i]]$date))))
+        unixTimestamps =
+            1000 * as.numeric(as.POSIXct(sort(unique(data[[i]]$date)),
+                                         origin="1970-01-01"))
         statsMedian = rbind(setNames(unixTimestamps, nm=NULL), stats[3,])
         statsQ2 = rbind(setNames(unixTimestamps, nm=NULL), stats[c(2, 4),])
 
