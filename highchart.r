@@ -55,10 +55,24 @@ getBinItemList = function(data, businesses, interval=100) {
 
 # getStackedHistogram
 # data[[]]$x
-getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE, logBase=exp(1), normalize=FALSE) {
+getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE, logBase=exp(1), normalize=FALSE, colors = c("#7cb5ec", "#000000")) {
     series = list()
+    plotLines = list()
     for (i in 1:length(data)){
         x = data[[i]]$x
+
+        plotLines[[i * 2 - 1]] =
+            list(color=colors[i],
+                 value=mean(x),
+                 width=2,
+                 label=list(text="mean", style=list(color=colors[i]), verticalAlign="middle"))
+        plotLines[[i * 2]] =
+            list(color=colors[i],
+                 value=median(x),
+                 dashStyle="dash",
+                 width=2,
+                 label=list(text="median", style=list(color=colors[i]), verticalAlign="middle"))
+
         maxBin = max(data[[i]]$x)
         actualInterval = interval
 
@@ -86,7 +100,8 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
     chart$chart(type="column")
     chart$plotOptions(
         column="{ grouping: false, pointPadding: 0, borderWidth: 0, groupPadding: 0, shadow: false}")
-    chart$xAxis(title=paste("{text: '", xLabel, "'}", sep=""))
+    chart$xAxis(title=paste("{text: '", xLabel, "'}", sep=""),
+                plotLines=plotLines)
     yLabel = "frequency"
     if (normalize) {
         yLabel = paste(yLabel, "(normalized)")
