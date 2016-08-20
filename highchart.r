@@ -76,14 +76,16 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
                  label=list(text="median", style=list(color=colors[i]), verticalAlign="middle"))
 
         maxBin = max(data[[i]]$x)
+        minBin = min(data[[i]]$x)
         actualInterval = interval
 
         if (logScale) {
             x = log(x + 1, base=logBase)
             maxBin = log(maxBin + 1, base=logBase)
+            minBin = log(minBin + 1, base=logBase)
             actualInterval = log(interval, base=logBase)
         }
-        histogram = hist(x, breaks=seq(0, maxBin + actualInterval, actualInterval), plot=FALSE)
+        histogram = hist(x, breaks=seq(minBin, maxBin + actualInterval, actualInterval), plot=FALSE)
         histNames = getBinItemList(data[[i]], interval=actualInterval)
 
         nBins = min(length(histogram$breaks), length(histogram$counts))
@@ -91,8 +93,9 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
         if (normalize) {
             counts = counts / nrow(data[[i]])
         }
+        breaks = c(histogram$breaks[2:nBins], histogram$breaks[nBins] + actualInterval)
         bins = getValues(
-            histogram$breaks[1:nBins],
+            breaks,
             counts,
             name=histNames)
         series[[i]] = list(name=names[i], data=bins)
@@ -139,3 +142,41 @@ getTimelapseLinePlot = function(data, names, yLabel, verticalLineDate=NULL, time
     chart$set(series=series)
     return(chart)
 }
+
+
+# Difference-in-difference plot
+diffInDiffPlot <- function(data,
+                     idCol,
+                     xCol,
+                     yLabel="change",
+                     periodNames=NULL
+                     ) {
+    dataChart <- Highcharts$new()
+    ids = unique(data[, idCol])
+    numPeriod = 0
+    for (i in 1:length(ids)) {
+        current = data[data[, idCol] == ids[i],]
+        numPeriod = nrow(current)
+        name = current[1,]$name
+        x = seq(0, numPeriod - 1, 1)
+        y = current[, xCol]
+        z = current[, xCol]
+        
+        seriesData = getValues(x, y, z, name)
+        visible = TRUE
+        dataChart$series(name=name,
+                         data=seriesData,
+                         showInLegend=TRUE,
+                         visible=visible)
+    }
+    if (is.null(periodNames)) {
+        periodNames = paste("period", x)
+    }
+    dataChart$xAxis(categories=periodNames)
+    dataChart$yAxis(title=list(text=yLabel), gridLineColor="#FFFFFF")
+    dataChart$legend(align="right", verticalAlign="top", layout="vertical")
+    dataChart$tooltip(pointFormat=getPointFormat(y=yLabel, z=xCol))
+    return (dataChart)
+}
+
+
