@@ -57,11 +57,37 @@ getBinItemList = function(data, businesses, interval=100) {
 
 # getStackedHistogram
 # data[[]]$x
-getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE, logBase=exp(1), normalize=FALSE, colors = c("#7cb5ec", "#000000")) {
+getStackedHistogram = function(data,
+                               names,
+                               xLabel,
+                               minBin=NULL,
+                               maxBin = NULL,
+                               interval=100,
+                               logScale=FALSE,
+                               logBase=exp(1),
+                               normalize=FALSE,
+                               colors = c("#7cb5ec", "#000000")) {
     series = list()
     plotLines = list()
+
+    actualInterval = interval
+    for (i in 1:length(data)) {
+        maxBin = max(maxBin, max(data[[i]]$x, na.rm=TRUE), na.rm=TRUE)
+        minBin = min(minBin, min(data[[i]]$x, na.rm=TRUE), na.rm=TRUE)
+    }
+    message(minBin)
+    message(maxBin)
+    if (logScale) {
+        maxBin = log(maxBin + 1, base=logBase)
+        minBin = log(minBin + 1, base=logBase)
+        actualInterval = log(interval, base=logBase)
+    }
+
     for (i in 1:length(data)){
         x = data[[i]]$x
+        if (logScale) {
+            x = log(x + 1, base=logBase)
+        }
 
         plotLines[[i * 2 - 1]] =
             list(color=colors[i],
@@ -75,16 +101,6 @@ getStackedHistogram = function(data, names, xLabel, interval=100, logScale=FALSE
                  width=2,
                  label=list(text="median", style=list(color=colors[i]), verticalAlign="middle"))
 
-        maxBin = max(data[[i]]$x)
-        minBin = min(data[[i]]$x)
-        actualInterval = interval
-
-        if (logScale) {
-            x = log(x + 1, base=logBase)
-            maxBin = log(maxBin + 1, base=logBase)
-            minBin = log(minBin + 1, base=logBase)
-            actualInterval = log(interval, base=logBase)
-        }
         histogram = hist(x, breaks=seq(minBin, maxBin + actualInterval, actualInterval), plot=FALSE)
         histNames = getBinItemList(data[[i]], interval=actualInterval)
 
@@ -145,6 +161,7 @@ getTimelapseLinePlot = function(data, names, yLabel, verticalLineDate=NULL, time
 
 
 # Difference-in-difference plot
+# Use with DiffInDiffAggregate function
 diffInDiffPlot <- function(data,
                      idCol,
                      xCol,
