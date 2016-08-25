@@ -75,8 +75,6 @@ getStackedHistogram = function(data,
         maxBin = max(maxBin, max(data[[i]]$x, na.rm=TRUE), na.rm=TRUE)
         minBin = min(minBin, min(data[[i]]$x, na.rm=TRUE), na.rm=TRUE)
     }
-    message(minBin)
-    message(maxBin)
     if (logScale) {
         maxBin = log(maxBin + 1, base=logBase)
         minBin = log(minBin + 1, base=logBase)
