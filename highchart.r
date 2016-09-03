@@ -105,7 +105,7 @@ getStackedHistogram = function(data,
         nBins = min(length(histogram$breaks), length(histogram$counts))
         counts = histogram$counts[1:nBins]
         if (normalize) {
-            counts = counts / nrow(data[[i]])
+            counts = 100 * counts / nrow(data[[i]])
         }
         breaks = c(histogram$breaks[2:nBins], histogram$breaks[nBins] + actualInterval)
         bins = getValues(
@@ -121,9 +121,9 @@ getStackedHistogram = function(data,
         column="{ grouping: false, pointPadding: 0, borderWidth: 0, groupPadding: 0, shadow: false}")
     chart$xAxis(title=paste("{text: '", xLabel, "'}", sep=""),
                 plotLines=plotLines)
-    yLabel = "frequency"
+    yLabel = "count"
     if (normalize) {
-        yLabel = paste(yLabel, "(normalized)")
+        yLabel = "density (%)"
     }
     chart$yAxis(title=paste("{text: '", yLabel, "'}", sep=""))
     chart$set(series=series)
