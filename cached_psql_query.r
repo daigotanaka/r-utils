@@ -5,17 +5,17 @@
 #     positive integer n: Expire if the existing cache is older than n minutes
 #     0: Expire now
 #     -1: Always use the existing cache if it exists
-cachedPsqlQuery <- function(queryName, query, expire=-1, cachePath="./psql_cache") {
+cachedPsqlQuery = function(queryName, query, expire=-1, cachePath="./psql_cache") {
     require(RPostgreSQL)
     
     if (!dir.exists(cachePath)) {
         dir.create(cachePath)
     }
     
-    rdsFileName = paste(cachePath, "/", queryName, ".rds", sep="")
+    rdsFileName <- paste(cachePath, "/", queryName, ".rds", sep="")
     if (file.exists(rdsFileName)) {
-        modifiedAt = file.mtime(rdsFileName)
-        mins = as.integer(difftime(Sys.time(), modifiedAt, units = "mins"))
+        modifiedAt <- file.mtime(rdsFileName)
+        mins <- as.integer(difftime(Sys.time(), modifiedAt, units <- "mins"))
         if (expire < 0 || mins < expire) {
             return(readRDS(rdsFileName))
         }
@@ -29,7 +29,7 @@ cachedPsqlQuery <- function(queryName, query, expire=-1, cachePath="./psql_cache
     tryCatch(
         {
             result <- dbSendQuery(con, query)
-            df = fetch(result, n=-1)
+            df <- fetch(result, n=-1)
         },
         finally={
             message("Disconnecting from the database server.")

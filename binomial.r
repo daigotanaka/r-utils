@@ -8,10 +8,10 @@ function(prob,  # sample probability (or response rate)
     moe <- z * sqrt(prob * (1 - prob) / n)
 
     if (!is.null(N)) {
-        # tmp = z ^ 2 * (prob * (1 - prob)) / moe^2
-        # n = tmp / (1 + tmp / N)
-        # n + n/N * tmp = tmp
-        # n = tmp * (1 - n/N)
+        # tmp <- z ^ 2 * (prob * (1 - prob)) / moe^2
+        # n <- tmp / (1 + tmp / N)
+        # n + n/N * tmp <- tmp
+        # n <- tmp * (1 - n/N)
         tmp <- n / (1 - n / N)
         moe <- sqrt(z ^ 2 * (prob * (1 - prob)) / tmp)
     }

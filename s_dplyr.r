@@ -1,6 +1,7 @@
 # Borrowed from https://gist.githubusercontent.com/skranz/9681509
 
-# Helper functions that allow string arguments for  dplyr's data modification functions like arrange, select etc. 
+# Helper functions that allow string arguments for  dplyr's data modification 
+# functions like arrange, select etc. 
 # Author: Sebastian Kranz
 
 # Examples are below

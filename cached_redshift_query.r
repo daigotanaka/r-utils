@@ -11,7 +11,7 @@
 #     positive integer n: Expire if the existing cache is older than n minutes
 #     0: Expire now
 #     -1: Always use the existing cache if it exists
-cachedRedshiftQuery <-
+cachedRedshiftQuery =
     function(
         queryName,
         query,
@@ -23,13 +23,13 @@ cachedRedshiftQuery <-
     require(RJDBC)
         
     if (is.null(redshiftDriverPath)) {
-        redshiftDriverPath = getwd()
+        redshiftDriverPath <- getwd()
     } else if (!dir.exists(redshiftDriverPath)) {
         dir.create(redshiftDriverPath)
     }
     if (is.null(redshiftDriverFullPath)) {
-        redshiftDriverFile = regmatches(redshiftDriverUrl, regexpr("[a-zA-Z0-9.-]*jar", redshiftDriverUrl))
-        redshiftDriverFullPath = paste(redshiftDriverPath, redshiftDriverFile, sep="/")
+        redshiftDriverFile <- regmatches(redshiftDriverUrl, regexpr("[a-zA-Z0-9.-]*jar", redshiftDriverUrl))
+        redshiftDriverFullPath <- paste(redshiftDriverPath, redshiftDriverFile, sep="/")
     }
     message(paste("Driver file: ", redshiftDriverFullPath, sep=""))
 
@@ -40,10 +40,10 @@ cachedRedshiftQuery <-
         dir.create(cachePath)
     }
     
-    rdsFileName = paste(cachePath, "/", queryName, ".rds", sep="")
+    rdsFileName <- paste(cachePath, "/", queryName, ".rds", sep="")
     if (file.exists(rdsFileName)) {
-        modifiedAt = file.mtime(rdsFileName)
-        mins = as.integer(difftime(Sys.time(), modifiedAt, units = "mins"))
+        modifiedAt <- file.mtime(rdsFileName)
+        mins <- as.integer(difftime(Sys.time(), modifiedAt, units <- "mins"))
         if (expire < 0 || mins < expire) {
             return(readRDS(rdsFileName))
         }
@@ -64,7 +64,7 @@ cachedRedshiftQuery <-
     tryCatch(
         {
             result <- dbSendQuery(conn, query)
-            df = fetch(result, n=-1)
+            df <- fetch(result, n=-1)
         },
         finally={
             message("Disconnecting from the database server.")

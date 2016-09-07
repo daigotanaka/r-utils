@@ -2,19 +2,21 @@ require(randomForest)
 require(caret)
 
 # Create a clean random forest ready data frame
-createRFData = function(data, outcomeColName, numericPredictors, categoricalPredictors) {
-    rfData = data[,which(names(data) %in% numericPredictors)]
+createRFData <- 
+function(data, outcomeColName, numericPredictors, categoricalPredictors) {
+    rfData <- data[,which(names(data) %in% numericPredictors)]
     for (i in 1:length(categoricalPredictors)) {
-        rfData[, categoricalPredictors[i]] = as.factor(data[, categoricalPredictors[i]])
+        rfData[, categoricalPredictors[i]] <- as.factor(data[, categoricalPredictors[i]])
     }
-    rfData[, outcomeColName] = as.factor(data[, outcomeColName])
+    rfData[, outcomeColName] <- as.factor(data[, outcomeColName])
     return(rfData)
 }
 
 # Function to find the important variables based on the mini Gini decrease
-findImportantVariables = function(data, outcomeColName) {
-    colNames = names(data)
-    outcomeCol = which(colNames == outcomeColName)
+findImportantVariables <- 
+function(data, outcomeColName) {
+    colNames <- names(data)
+    outcomeCol <- which(colNames == outcomeColName)
     
     model <- randomForest(
         data[, outcomeCol] ~ .,
@@ -24,7 +26,7 @@ findImportantVariables = function(data, outcomeColName) {
     imp <- importance(initialModel)
     imp <- imp[order(-imp),]
     impDf <- data.frame(MeanDecreaseGini=imp)
-    impDf$VariableName <- factor(names(imp), levels = rev(names(imp)))
+    impDf$VariableName <- factor(names(imp), levels <- rev(names(imp)))
     
     # varImpPlot(initialModel) produces the plot but I want prettier one:
     # impPlot <- ggplot(data=impDf, aes(x=VariableName, y=MeanDecreaseGini)) +
@@ -34,25 +36,25 @@ findImportantVariables = function(data, outcomeColName) {
     # logImpPlot <- ggplot(data=impDf, aes(x=VariableName, y=log(MeanDecreaseGini))) +
     #     geom_point(fill="salmon", stat="identity") +
     #     stat_smooth(
-    #         method = "lm",
+    #         method <- "lm",
     #         data=impDf,
     #         aes(x=as.numeric(VariableName),
     #             y=log(MeanDecreaseGini))) +
     #     coord_flip()
     
     # Based on the mean Gini decrease analysis, use the most important predictors
-    logImpDf = data.frame(x=as.numeric(impDf$VariableName), y=log(impDf$MeanDecreaseGini))
-    lmLogImp = lm(y ~ x, data=logImpDf)
-    newData = data.frame(x=c(nrow(logImpDf):1))
-    predictedLogImp = predict(lmLogImp, newdata=newData)
+    logImpDf <- data.frame(x=as.numeric(impDf$VariableName), y=log(impDf$MeanDecreaseGini))
+    lmLogImp <- lm(y ~ x, data=logImpDf)
+    newData <- data.frame(x=c(nrow(logImpDf):1))
+    predictedLogImp <- predict(lmLogImp, newdata=newData)
     
     # Count until the predicted log(MeanDecreaseGini) becomes greater than actual
-    numImp = 0
+    numImp <- 0
     for (i in 1:length(newData$x)) {
         if (predictedLogImp[i] > logImpDf[i,]$y) break
         numImp <- numImp + 1
     }
-    numImp = length(newData$x)
+    numImp <- length(newData$x)
     
     # Use top numImp predictors for this model
     predictorsUsed <- names(imp)[1:numImp]
@@ -60,9 +62,10 @@ findImportantVariables = function(data, outcomeColName) {
 }
 
 # Do K-fold cross-validation and return the confusion matrix
-crossValidationConfusionMatrix = function(data, outcomeColName, k=10) {
-    colNames = names(data)
-    outcomeCol = which(colNames == outcomeColName)
+crossValidationConfusionMatrix <- 
+function(data, outcomeColName, k=10) {
+    colNames <- names(data)
+    outcomeCol <- which(colNames == outcomeColName)
  
     # Assign each observation to one of 10 folds
     # Note that this replace=TRUE is NOT replacing the observation when sampling
@@ -94,6 +97,6 @@ crossValidationConfusionMatrix = function(data, outcomeColName, k=10) {
     
     result <- cbind(actual[, 1], prediction)
     names(result) <- c("Actual", "Predicted")
-    confusionMatrix = table(result)
+    confusionMatrix <- table(result)
     return(confusionMatrix)
 }

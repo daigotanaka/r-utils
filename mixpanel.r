@@ -11,24 +11,25 @@
 #     -1: Always use the existing cache if it exists
 #
 # Example:
-# events = c("Some Event Name", "Another Event Name")
-# args = c(# Dates are inclusive
+# events <- c("Some Event Name", "Another Event Name")
+# args <- c(# Dates are inclusive
 #          from_date="2016-03-09",
 #          to_date="2016-03-09")
-# df = cachedMixpanelEvent("exampleQuery",
+# df <- cachedMixpanelEvent("exampleQuery",
 #                           events=events,
 #                           type="general",
 #                           unit="hour",
 #                           args=args,
 #                           cacheExpire=0)
-cachedMixpanelEvent <- function(queryName,
-                                events,
-                                type="general",
-                                unit="day",
-                                args=c(),
-                                tokenExpireInMin=60*15,
-                                cacheExpire=-1,
-                                cachePath="./mp_cache") {
+cachedMixpanelEvent =
+function(queryName,
+         events,
+         type="general",
+         unit="day",
+         args=c(),
+         tokenExpireInMin=60*15,
+         cacheExpire=-1,
+         cachePath="./mp_cache") {
     require(RCurl)
     require(rjson)
     require(digest)
@@ -38,10 +39,10 @@ cachedMixpanelEvent <- function(queryName,
         dir.create(cachePath)
     }
 
-    mpFileName = paste(cachePath, "/", queryName, ".rds", sep="")
+    mpFileName <- paste(cachePath, "/", queryName, ".rds", sep="")
     if (file.exists(mpFileName)) {
-        modifiedAt = file.mtime(mpFileName)
-        mins = as.integer(difftime(Sys.time(), modifiedAt, units = "mins"))
+        modifiedAt <- file.mtime(mpFileName)
+        mins <- as.integer(difftime(Sys.time(), modifiedAt, units <- "mins"))
         if (cacheExpire < 0 || mins < cacheExpire) {
             return(readRDS(mpFileName))
         }
@@ -53,26 +54,26 @@ cachedMixpanelEvent <- function(queryName,
     ## Set the expiry time for the API link as 15 minutes
     tokenExpireAt <- as.integer(as.numeric(as.POSIXlt(Sys.time()))) + tokenExpireInMin
 
-    eventArg = paste('["', paste(events, collapse='","'), '"]', sep="")
-    allArgs = args
+    eventArg <- paste('["', paste(events, collapse='","'), '"]', sep="")
+    allArgs <- args
 
     # Overwrite even if given
-    allArgs["event"] = eventArg
-    allArgs["expire"] = tokenExpireAt
-    allArgs["format"] = "json"
-    allArgs["type"] = type
-    allArgs["unit"] = unit
+    allArgs["event"] <- eventArg
+    allArgs["expire"] <- tokenExpireAt
+    allArgs["format"] <- "json"
+    allArgs["type"] <- type
+    allArgs["unit"] <- unit
 
-    argKeys = sort(names(allArgs))
-    argsSig = argsUrl = paste(argKeys[1], "=", allArgs[argKeys[1]], sep="")
+    argKeys <- sort(names(allArgs))
+    argsSig <- argsUrl <- paste(argKeys[1], "=", allArgs[argKeys[1]], sep="")
     for (i in 2:length(argKeys)) {
-        argsSig = paste(argsSig, argKeys[i], "=", allArgs[argKeys[i]], sep="")
-        argsUrl = paste(argsUrl, "&", argKeys[i], "=", allArgs[argKeys[i]], sep="")
+        argsSig <- paste(argsSig, argKeys[i], "=", allArgs[argKeys[i]], sep="")
+        argsUrl <- paste(argsUrl, "&", argKeys[i], "=", allArgs[argKeys[i]], sep="")
     }
 
     ## Create the hashed Signature
     sig <- paste("api_key=", mp_api_key, argsSig, mp_api_secret, sep="")
-    hashedSig <- digest(sig, algo="md5", serialize = FALSE)
+    hashedSig <- digest(sig, algo="md5", serialize <- FALSE)
 
     ## Create the URL with the full authorization string
     url <- paste("http://mixpanel.com/api/2.0/events/?",
@@ -82,7 +83,7 @@ cachedMixpanelEvent <- function(queryName,
                  sep="")
 
     ## Connect to the Mixpanel API and save data
-    json = content(GET(url), as="text")
+    json <- content(GET(url), as="text")
     df <- fromJSON(json)
     saveRDS(df, mpFileName)
     return(df)
@@ -129,10 +130,10 @@ cachedMixpanelExport <- function(queryName,
         dir.create(cachePath)
     }
 
-    mpFileName = paste(cachePath, "/", queryName, ".rds", sep="")
+    mpFileName <- paste(cachePath, "/", queryName, ".rds", sep="")
     if (file.exists(mpFileName)) {
-        modifiedAt = file.mtime(mpFileName)
-        mins = as.integer(difftime(Sys.time(), modifiedAt, units = "mins"))
+        modifiedAt <- file.mtime(mpFileName)
+        mins <- as.integer(difftime(Sys.time(), modifiedAt, units <- "mins"))
         if (cacheExpire < 0 || mins < cacheExpire) {
             return(readRDS(mpFileName))
         }
@@ -144,28 +145,28 @@ cachedMixpanelExport <- function(queryName,
     ## Set the expiry time for the API link as 15 minutes
     tokenExpireAt <- as.integer(as.numeric(as.POSIXlt(Sys.time()))) + tokenExpireInMin
 
-    allArgs = args
+    allArgs <- args
 
     # Overwrite even if given
-    allArgs["expire"] = tokenExpireAt
-    allArgs["from_date"] = fromDate
-    allArgs["to_date"] = toDate
+    allArgs["expire"] <- tokenExpireAt
+    allArgs["from_date"] <- fromDate
+    allArgs["to_date"] <- toDate
 
     if (!is.null(events)) {
-        eventArg = paste('["', paste(events, collapse='","'), '"]', sep="")
-        allArgs["event"] = eventArg
+        eventArg <- paste('["', paste(events, collapse='","'), '"]', sep="")
+        allArgs["event"] <- eventArg
     }
 
-    argKeys = sort(names(allArgs))
-    argsSig = argsUrl = paste(argKeys[1], "=", allArgs[argKeys[1]], sep="")
+    argKeys <- sort(names(allArgs))
+    argsSig <- argsUrl <- paste(argKeys[1], "=", allArgs[argKeys[1]], sep="")
     for (i in 2:length(argKeys)) {
-        argsSig = paste(argsSig, argKeys[i], "=", allArgs[argKeys[i]], sep="")
-        argsUrl = paste(argsUrl, "&", argKeys[i], "=", allArgs[argKeys[i]], sep="")
+        argsSig <- paste(argsSig, argKeys[i], "=", allArgs[argKeys[i]], sep="")
+        argsUrl <- paste(argsUrl, "&", argKeys[i], "=", allArgs[argKeys[i]], sep="")
     }
 
     ## Create the hashed Signature
     sig <- paste("api_key=", mp_api_key, argsSig, mp_api_secret, sep="")
-    hashedSig <- digest(sig, algo="md5", serialize = FALSE)
+    hashedSig <- digest(sig, algo="md5", serialize <- FALSE)
 
     ## Create the URL with the full authorization string
     url <- paste("http://data.mixpanel.com/api/2.0/export/?",
@@ -175,34 +176,34 @@ cachedMixpanelExport <- function(queryName,
                  sep="")
 
     ## Connect to the Mixpanel API and save data
-    jsonl = content(GET(url), as="text", timeout(httpTimeoutSec))  # JSONL format
-    jsons = str_split(jsonl, "\n")[[1]]
+    jsonl <- content(GET(url), as="text", timeout(httpTimeoutSec))  # JSONL format
+    jsons <- str_split(jsonl, "\n")[[1]]
 
-    allEvents = list()
+    allEvents <- list()
     for (i in 1:(length(jsons) - 1)) {
-        json = jsons[i]
+        json <- jsons[i]
         # Last line may be empty. So tryCatch
         tryCatch({
             parsed <- fromJSON(json)
-            event = parsed$event
-            props = parsed$properties
-            data = as.data.frame(flatten(props), stringsAsFactors=FALSE)
-            colnames(data) = names(unlist(props))
+            event <- parsed$event
+            props <- parsed$properties
+            data <- as.data.frame(flatten(props), stringsAsFactors=FALSE)
+            colnames(data) <- names(unlist(props))
             if (!(event %in% names(allEvents))) {
-                allEvents[[event]] = data
+                allEvents[[event]] <- data
             } else {
-                colNamesOld = names(allEvents[[event]])
-                colNamesNew = names(data)
-                missingFromNew = which(!(colNamesOld %in% colNamesNew))
-                missingFromOld = which(!(colNamesNew %in% colNamesOld))
+                colNamesOld <- names(allEvents[[event]])
+                colNamesNew <- names(data)
+                missingFromNew <- which(!(colNamesOld %in% colNamesNew))
+                missingFromOld <- which(!(colNamesNew %in% colNamesOld))
 
                 if (length(missingFromNew) > 0) {
-                    data[, colNamesOld[missingFromNew]] = NA
+                    data[, colNamesOld[missingFromNew]] <- NA
                 }
                 if (length(missingFromOld) > 0) {
-                    allEvents[[event]][, colNamesNew[missingFromOld]] = NA
+                    allEvents[[event]][, colNamesNew[missingFromOld]] <- NA
                 }
-                allEvents[[event]] = rbind(allEvents[[event]], data)
+                allEvents[[event]] <- rbind(allEvents[[event]], data)
             }
         })
     }
