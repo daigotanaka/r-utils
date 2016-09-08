@@ -5,15 +5,16 @@ function(prob,  # sample probability (or response rate)
          conf.level=0.95  # Confidence interval
          ) {
     z <- qnorm(p=1.0 - (1.0 - conf.level) * 0.5)
-    moe <- z * sqrt(prob * (1 - prob) / n)
+    B <- prob * (1 - prob)
+    moe <- z * sqrt(B / n)
 
     if (!is.null(N)) {
         # tmp <- z ^ 2 * (prob * (1 - prob)) / moe^2
         # n <- tmp / (1 + tmp / N)
         # n + n/N * tmp <- tmp
         # n <- tmp * (1 - n/N)
-        tmp <- n / (1 - n / N)
-        moe <- sqrt(z ^ 2 * (prob * (1 - prob)) / tmp)
+        fpcf <- sqrt((N - n) / (N - 1))
+        moe <-  moe * fpcf
     }
     return(moe)
 }
@@ -25,9 +26,10 @@ function(prob,
          conf.level=0.95
          ) {
     z <- qnorm(p=1.0 - (1.0 - conf.level) * 0.5)
-    n <- (z ^ 2 * (prob * (1 - prob)) / moe^2)
+    B <- prob * (1 - prob)
+    n <- z ^ 2 * B / moe^2
     if (!is.null(N)) {
-        n <- n / (1 + (z ^ 2 * (prob * (1 - prob)) / (moe^2 * N)))
+        n <- n * N / (n + N - 1)
     }
     return(n)
 }
