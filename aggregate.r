@@ -7,6 +7,7 @@ diffInDiffAggregate =
              timeCol="date",
              interval=7,  # 1 interval=N rows: Each period has N rows
              normalizeByPeriod=NULL, # Set N-th period (1, 2, 3...)
+             diffByPeriod=NULL, # Set N-th period (1, 2, 3...)
              FUNC=sum) {
         require(dplyr)
         
@@ -39,6 +40,9 @@ diffInDiffAggregate =
                     next()
                 }
                 aggData[, xCol] <- aggData[, xCol] / base
+            } else if (!is.null(diffByPeriod)) {
+                base <- aggData[diffByPeriod, xCol]
+                aggData[, xCol] <- aggData[, xCol] - base
             }
             
             if (is.null(totalAggData)) {

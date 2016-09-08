@@ -56,8 +56,14 @@ function(date, y, z=NULL, name=NULL){
 }
 
 getPointFormat =
-function(y, z){
-    paste("<div>{point.name}<br/>",
-          y, ":{point.y}<br/>",
-          z, ": {point.z}</div>")
+function(y, z=NULL){
+    format <- "<div>"
+    if (!is.null(y)) {
+        format <- paste(format, y, ": {point.y}")
+    }
+    if (!is.null(z)) {
+        format <- paste(format, "<br/>", z, ": {point.z}")
+    }
+    format <- paste(format, "</div>")
+    return(format)
 }
