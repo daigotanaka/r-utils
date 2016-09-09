@@ -166,17 +166,22 @@ getTimelapseLinePlot = function(data, names, yLabel, colName="x", verticalLineDa
 diffInDiffPlot = function(data,
                      idCol,
                      xCol,
+                     idLabelCol=NULL,
                      xLabel="period",
                      yLabel="change",
-                     periodNames=NULL
+                     periodNames=NULL,
+                     legendStyle=list(align="right", verticalAlign="top", layout="vertical")
                      ) {
     dataChart <- Highcharts$new()
     ids <- unique(data[, idCol])
     numPeriod <- 0
+    if (is.null(idLabelCol)) {
+        idLabelCol = idCol
+    }
     for (i in 1:length(ids)) {
         current <- data[data[, idCol] == ids[i],]
         numPeriod <- nrow(current)
-        name <- current[1,][, idCol]
+        name <- current[1,][, idLabelCol]
         x <- seq(0, numPeriod - 1, 1)
         y <- current[, xCol]
         z <- current[, xCol]
@@ -193,7 +198,7 @@ diffInDiffPlot = function(data,
     }
     dataChart$xAxis(categories=periodNames)
     dataChart$yAxis(title=list(text=yLabel), gridLineColor="#FFFFFF")
-    dataChart$legend(align="right", verticalAlign="top", layout="vertical")
+    do.call(dataChart$legend, c(legendStyle))
     dataChart$tooltip(pointFormat=getPointFormat(y=yLabel, z=NULL))
     return (dataChart)
 }
