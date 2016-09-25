@@ -79,3 +79,48 @@ R6Class("Footnote",
     }
   )
 )
+
+numericToString = function(numbers, digits=2) {
+    strings <- sprintf(paste("%.", digits, "f", sep=""), 
+            round(numbers, digits=digits))
+    return(strings)
+}
+
+markdownTableStrings = function(data, header=NULL, digits=2) {
+    tableLines <- c()
+
+    if (is.null(header)) {
+        header <- names(data)
+    }
+    head <- paste("|",
+                  paste(header, collapse="|"),
+                  "|", sep="")
+
+    format <- "|"
+    for (col in 1:length(names(data))) {
+        if (is.numeric(data[1, col])) {
+            format <- paste(format, "----:|", sep="")
+        } else {
+            format <- paste(format, ":----|", sep="")
+        }
+    }
+
+    row = c()
+    for (r in 1:nrow(data)) {
+        dataStr = c()
+        for (col in 1:length(names(data))) {
+            elem <- data[r, col]
+            if (is.numeric(elem)) {
+                dataStr = c(dataStr, numericToString(elem))
+            } else if (is.factor(elem)) {
+                dataStr = c(dataStr, as.character(elem))
+            } else {
+                dataStr = c(dataStr, elem)
+            }
+        }
+        row[r] <- paste("|",
+                        paste(dataStr, collapse="|"),
+                        "|", sep="")
+    }
+    return (c(head, format, row))
+}
