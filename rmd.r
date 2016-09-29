@@ -111,7 +111,7 @@ markdownTableStrings = function(data, header=NULL, digits=2) {
         for (col in 1:length(names(data))) {
             elem <- data[r, col]
             if (is.numeric(elem)) {
-                dataStr = c(dataStr, numericToString(elem))
+                dataStr = c(dataStr, numericToString(elem, digits))
             } else if (is.factor(elem)) {
                 dataStr = c(dataStr, as.character(elem))
             } else {

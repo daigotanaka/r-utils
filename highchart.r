@@ -61,6 +61,7 @@ getBinItemList = function(data, businesses, interval=100) {
 getStackedHistogram = function(data,
                                names,
                                xLabel,
+                               yLabel=NULL,
                                colName="x",
                                minBin=NULL,
                                maxBin = NULL,
@@ -123,9 +124,12 @@ getStackedHistogram = function(data,
         column="{ grouping: false, pointPadding: 0, borderWidth: 0, groupPadding: 0, shadow: false}")
     chart$xAxis(title=paste("{text: '", xLabel, "'}", sep=""),
                 plotLines=plotLines)
-    yLabel <- "count"
-    if (normalize) {
-        yLabel <- "density (%)"
+    if (is.null(yLabel)) {
+        if (normalize) {
+            yLabel <- "density (%)"
+        } else {
+            yLabel <- "count"
+        }
     }
     chart$yAxis(title=paste("{text: '", yLabel, "'}", sep=""))
     chart$set(series=series)
