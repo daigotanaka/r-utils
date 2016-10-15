@@ -66,6 +66,9 @@ cachedRedshiftQuery =
             result <- dbSendQuery(conn, query)
             df <- fetch(result, n=-1)
         },
+        error = function(e) {
+            message(e)
+        },
         finally={
             message("Disconnecting from the database server.")
             dbDisconnect(conn)
