@@ -7,6 +7,10 @@ function(dataFrame,
          dateNewer=c(),
          dateOlder=c(),
          customRuleFunc=NULL) {
+    if (by %in%
+        c(earlierEntry, greater, lesser, dateNewer, dateOlder)) {
+        stop("column specified by 'by' cannot be used in conditions.")
+    }
     isValid <- function(value) {
         if (is.na(value) || is.nan(value)) {
             return(FALSE)
