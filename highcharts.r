@@ -1,29 +1,13 @@
 # The functions require rchart-helper.R preloaded
 
-# getQ2TimelapsePlot
-# data[[]]$x: Stats
-# data[[]]$date: Date
-getQ2TimelapsePlot = function(data, names, colors, yLabel, colName="x", verticalLineDate=NULL, timezone="UTC") {
+getLineRangePlot =
+function(seriesNames, lines, ranges, rangeName, yLabel, verticalLineDate=NULL, colors, timezone="UTC") {
     series <- list()
-    dateFactors <- list()
-    col <- which(names(data[[1]])==colName)[1]
-    for (i in 1:length(data)) {
-        dateFactors[[i]] <- as.factor(data[[i]]$date)
-        boxplot <- boxplot(data[[i]][, col] ~ dateFactors[[i]],
-                          data=data.frame(dateFactors[[i]], data[[i]][, col]), plot=FALSE)
-        stats <- setNames(as.data.frame(boxplot$stats), nm=NULL)
-
-        # Timpstamp in miliseconds
-        unixTimestamps <-
-            1000 * as.numeric(as.POSIXct(sort(unique(data[[i]]$date)),
-                                         origin="1970-01-01"))
-        statsMedian <- rbind(setNames(unixTimestamps, nm=NULL), stats[3,])
-        statsQ2 <- rbind(setNames(unixTimestamps, nm=NULL), stats[c(2, 4),])
-
+    for (i in 1:length(lines)) {
         series[[2 * (i - 1) + 1]] <-
-            list(name=names[i], data=statsMedian, zIndex=1, color=colors[i],
+            list(name=seriesNames[i], data=lines[[i]], zIndex=1, color=colors[i],
                  marker=list(fillColor="white", lineWidth=2, lineColor=colors[i]))
-        series[[2 * i]] <- list(name="50th quartile", data=statsQ2, zIndex=0,
+        series[[2 * i]] <- list(name=rangeName, data=ranges[[i]], zIndex=0,
                  type="arearange", color=colors[i], lineWidth=0, linkedTo=":previous", fillOpacity=0.3)
     }
 
@@ -39,6 +23,31 @@ getQ2TimelapsePlot = function(data, names, colors, yLabel, colName="x", vertical
     chart$yAxis(title=list(text=yLabel), min=0)
     chart$set(series=series)
     return(chart)
+}
+
+# getQ2TimelapsePlot
+# data[[]]$x: Stats
+# data[[]]$date: Date
+getQ2TimelapsePlot = function(data, names, colors, yLabel, colName="x", verticalLineDate=NULL, timezone="UTC") {
+    col <- which(names(data[[1]])==colName)[1]
+    dateFactors <- list()
+    statsMedian <- list()
+    statsQ2 <- list()
+    for (i in 1:length(data)) {
+        dateFactors[[i]] <- as.factor(data[[i]]$date)
+        boxplot <- boxplot(data[[i]][, col] ~ dateFactors[[i]],
+                          data=data.frame(dateFactors[[i]], data[[i]][, col]), plot=FALSE)
+        stats <- setNames(as.data.frame(boxplot$stats), nm=NULL)
+
+        # Timpstamp in miliseconds
+        unixTimestamps <-
+            1000 * as.numeric(as.POSIXct(sort(unique(data[[i]]$date)),
+                                         origin="1970-01-01"))
+        statsMedian[[i]] <- rbind(setNames(unixTimestamps, nm=NULL), stats[3,])
+        statsQ2[[i]] <- rbind(setNames(unixTimestamps, nm=NULL), stats[c(2, 4),])
+    }
+
+    return(getLineRangePlot(names, statsMedian, statsQ2, "50th quartile", yLabel, verticalLineDate, colors, timezone))
 }
 
 # Helper for creating histogram
