@@ -3,12 +3,14 @@
 getLineRangePlot =
 function(seriesNames, lines, ranges, rangeName, yLabel, verticalLineDate=NULL, colors, timezone="UTC") {
     series <- list()
+    minValue <- 0
     for (i in 1:length(lines)) {
         series[[2 * (i - 1) + 1]] <-
             list(name=seriesNames[i], data=lines[[i]], zIndex=1, color=colors[i],
                  marker=list(fillColor="white", lineWidth=2, lineColor=colors[i]))
         series[[2 * i]] <- list(name=rangeName, data=ranges[[i]], zIndex=0,
                  type="arearange", color=colors[i], lineWidth=0, linkedTo=":previous", fillOpacity=0.3)
+        minValue <- min(minValue, min(ranges[[i]][2,]))
     }
 
     chart <- Highcharts$new()
@@ -20,10 +22,38 @@ function(seriesNames, lines, ranges, rangeName, yLabel, verticalLineDate=NULL, c
                                      "width: 2}]", sep="")
     }
     chart$set(xAxis=xAxis)
-    chart$yAxis(title=list(text=yLabel), min=0)
+    chart$yAxis(title=list(text=yLabel), min=minValue)
     chart$set(series=series)
     return(chart)
 }
+
+getMean1SigmaTimelapsePlot = function(data, names, colors, yLabel, colName="x", verticalLineDate=NULL, timezone="UTC") {
+    col <- which(names(data[[1]])==colName)[1]
+    dateFactors <- list()
+    statsMean <- list()
+    statsStds <- list()
+    for (i in 1:length(data)) {
+        data[[i]]$x = data[[i]][, col]
+        stats = 
+            group_by(data[[i]], date) %>% 
+            summarize(mean=mean(x), stdLower=mean(x) - sd(x), stdUpper=(mean(x) + sd(x))) %>%
+            arrange(date)
+        stats = t(stats)
+        # Timpstamp in miliseconds
+        unixTimestamps <-
+            1000 * as.numeric(as.POSIXct(sort(unique(data[[i]]$date)),
+                                         origin="1970-01-01"))
+        statsMean[[i]] <- as.data.frame(rbind(setNames(unixTimestamps, nm=NULL), 
+                                        as.numeric(stats[2,])))
+        names(statsMean[[i]]) <- NULL
+        statsStds[[i]] <- as.data.frame(rbind(setNames(unixTimestamps, nm=NULL),
+                                              as.numeric(stats[3,]),
+                                              as.numeric(stats[4,])))
+        names(statsStds[[i]]) <- NULL
+    }
+    return(getLineRangePlot(names, statsMean, statsStds, "1 sigma", yLabel, verticalLineDate, colors, timezone))
+}
+
 
 # getQ2TimelapsePlot
 # data[[]]$x: Stats
