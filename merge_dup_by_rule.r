@@ -72,17 +72,17 @@ function(dataFrame,
             return (origVal)
         }
     }
-    
+
     # Clean data by consolidating the dups with the rules
     colNames <- names(dataFrame)
     if (!(by %in% colNames)) {
         stop(paste(by, " not present in the column names!", sep=" "))
     }
-    # Copy schema only
-    cleanDF= dataFrame[0,]
+    cleanDF <- dataFrame[0,]  # Copy schema only
     for (i in 1:nrow(dataFrame)) {
         current <- dataFrame[i,]
-        if (nrow(cleanDF) == 0 || nrow(cleanDF[cleanDF[,by] == as.matrix(current[,by])[1,1],]) == 0) {
+        if (nrow(cleanDF) == 0 ||
+            nrow(cleanDF[cleanDF[,by] == as.matrix(current[,by])[1,1],]) == 0) {
             cleanDF <- rbind(cleanDF, current)
             next()
         }
@@ -101,15 +101,15 @@ function(dataFrame,
                 prev[,colName] <- currVal
                 next()
             }
-            
+
             if (isEmptyStr(currVal)) {
                 next()
             } else if (isEmptyStr(prevVal)) {
                 prev[,colName] <- currVal
                 next()
             }
-          
-            ruleFunc <- NULL 
+
+            ruleFunc <- NULL
             # Check for earlier entry (Order sensitive!)
             if (colName %in% earlierEntry) {
                 ruleFunc <- takeEarlierEntry
@@ -130,13 +130,13 @@ function(dataFrame,
             else if (colName %in% dateOlder) {
                 ruleFunc <- takeDateOlder
             }
-            
+
             if (!is.null(ruleFunc)) {
                 prev[, colName] <- ruleFunc(colName, prev, current)
                 next()
             }
-           
-            # Custom rule function 
+
+            # Custom rule function
             if (!is.null(customRuleFunc)) {
                 # prev and current are single row data.frame
                 val <- customRuleFunc(colName, prev, current)
@@ -145,7 +145,7 @@ function(dataFrame,
                     next()
                 }
             }
-            
+
             # Finally give a warning if not N/A and not equal
             if (!is.na(prevVal) && prevVal != currVal) {
                 warning(paste("Dup entries with different values not treated.",
@@ -174,7 +174,7 @@ mergeDupByRule.tests = function () {
             stop("Test 1 failed")
         }
     }
-    
+
     testMergeDupByRule2 <- function() {
         a <- data.frame(
             id=c(1, 1, 1, 1, 2),
