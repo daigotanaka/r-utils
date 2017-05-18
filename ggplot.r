@@ -188,14 +188,20 @@ function(model,
     predNames = predNames[order(coeffs[,1], decreasing=FALSE)]
     predCaptions = predCaptions[order(coeffs[,1], decreasing=FALSE)]
     estimate = data.frame(estimate=c(), conf.low=c(), conf.high=c(), term=c())
-    scale = ifelse(logit, 100, 1)
+    meanPred = mean(predict(model, type="response"))
     for (predName in predNames) {
         coeff = coeffs[predName, ]
-        lower = scale * (coeff[1] - z * coeff[2])
-        upper = scale * (coeff[1] + z * coeff[2])
+        curEst = coeff[1]
+        lower = coeff[1] - z * coeff[2]
+        upper = coeff[1] + z * coeff[2]
+        if (logit) {
+            curEst = 100 * (gtools::inv.logit(gtools::logit(meanPred) + curEst) - meanPred)
+            lower = 100 * (gtools::inv.logit(gtools::logit(meanPred) + lower) - meanPred)
+            upper = 100 * (gtools::inv.logit(gtools::logit(meanPred) + upper) - meanPred)
+        }
         estimate =
             rbind(estimate,
-                  data.frame(estimate=scale * coeff[1],
+                  data.frame(estimate=curEst,
                              conf.low=lower, conf.high=upper,
                              term=predCaptions[predName]))
     }
@@ -204,18 +210,21 @@ function(model,
     coeffPlot =
         coeffPlot +
             geom_text(data=estimate,
-              aes(x=estimate + 2,
+              aes(x=estimate + .02,
                   y=term,
                   label=signif(estimate, 2),
                   hjust=0,
                   vjust=1),
-              nudge_y=0.4
+              nudge_y=0.2
               ) +
         scale_alpha_continuous(range=c(0.0, 1.0), trans="identity") +
         guides(alpha=FALSE) +
         labs(title=title,
              x=outcomeCaption,
              y="")
+#     if (logit) {
+#        coeffPlot = coeffPlot + scale_x_continuous(limits=c(-100, 100))
+#    }
 }
 
 regressionEstimatePlot1 =
