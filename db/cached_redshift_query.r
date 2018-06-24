@@ -22,19 +22,19 @@ cachedRedshiftQuery =
         cachePath="./redshift_cache") {
     require(RJDBC)
 
-    if (!exists("redshiftJdbcUrl") {
+    if (!exists("redshiftJdbcUrl")) {
         redshiftJdbcUrl = Sys.getenv("REDSHIFT_HOST")
     }
-    if (!exists("redshiftJdbcPort") {
+    if (!exists("redshiftJdbcPort")) {
         redshiftJdbcPort = Sys.getenv("REDSHIFT_PORT")
     }
-    if (!exists("redshiftDatabase") {
+    if (!exists("redshiftDatabase")) {
         redshiftDatabase = Sys.getenv("REDSHIFT_DATABASE")
     }
-    if (!exists("redshiftUsername") {
+    if (!exists("redshiftUsername")) {
         redshiftUsername = Sys.getenv("REDSHIFT_USERNAME")
     }
-    if (!exists("redshiftPassword") {
+    if (!exists("redshiftPassword")) {
         redshiftPassword = Sys.getenv("REDSHIFT_PASSWORD")
     }
 
