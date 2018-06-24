@@ -23,7 +23,7 @@ cachedRedshiftQuery =
     require(RJDBC)
 
     if (!exists("redshiftJdbcURL")) {
-        redshiftJdbcUrl = Sys.getenv("REDSHIFT_HOST")
+        redshiftJdbcURL = Sys.getenv("REDSHIFT_HOST")
     }
     if (!exists("redshiftJdbcPort")) {
         redshiftJdbcPort = Sys.getenv("REDSHIFT_PORT")
